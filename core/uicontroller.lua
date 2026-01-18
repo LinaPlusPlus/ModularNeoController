@@ -24,20 +24,7 @@ local function ui_clear()
             H=0.8, W=0.8, Y=6.8, X=0,
         },
     };
-    if mem.show_headers ~= false then
-        table.insert(_ui_updates,{
-        command = "add",
-        element = "tabheader",
-        X = 0,
-        Y = 0,
-        name = "tabheader",
-        captions = seekbar_pages,
-        current_tab = mem.active_page,
-        transparent = false,
-        draw_border = true
-        })
-    end
-    mem.ui_len = 3;
+    mem.ui_len = 2;
 
     return l;
 end

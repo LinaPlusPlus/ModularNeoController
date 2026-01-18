@@ -1,14 +1,35 @@
---> code_lur = section:tostring()
+--> code_lur_header = section:tostring()
 local hup = false;
 local iat = {}; --contains setup functions (old?)
 local at = {};
-local function go(place) mem.at,hup = place,false end
+local fresh;
+
+local function go(place) 
+    mem.at,hup = place,false 
+end
+
+local function gosub(place)
+    insert(mem.uistk,mem.at);
+    mem.at,hup = place,false
+end
+
+local function ret(place)
+    mem.at = remove(mem.uistk)
+    hup = false
+end
+
+--> code_lur = section:tostring()
 
 local function ready()
  while not hup do
   hup = true
   local aat = mem.at;
-  (at[aat or "setup"] or at.home1)(mem.state)
+  fresh = mem.oldat ~= aat
+  if fresh then
+     mem.oldat = aat;
+  end
+  (at[aat or "setup"] or at.lost)(mem.state)
+  
  end
 
  if mem.splash ~= mem.splash_old then
@@ -30,12 +51,3 @@ local function ready()
 
 end
 
-local function gosub(place)
-    insert(mem.uistk,mem.at);
-    mem.at,hup = place,false
-end
-
-local function ret(place)
-    mem.at = remove(mem.uistk)
-    hup = false
-end

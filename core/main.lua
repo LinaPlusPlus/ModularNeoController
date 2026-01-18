@@ -1,22 +1,26 @@
 --> load(section:tostring())()
-
--- begin 
 function writef(fmt,...) table.insert(code,fmt:format(...)) end
+local function writeh(fmt,...) io.write(fmt:format(...)) end
 
 -- sect uses a preparser
 -- for now it just passes as is
 function sect(name)
-    local _ = code; --await
     local sect = section:tostring()
     -- TODO add preprocesor here
     table.insert(code,sect);
 end
 
-io.write(code_legal);
-io.write(code_globals);
-io.write(code_uicontroller);
-io.write(code_lur);
-io.write(code_common);
+writeh("%s\n",code_legal);
+writeh("%s\n",code_globals);
+writeh("%s\n",code_lur_header);
+writeh("%s\n",code_uicontroller);
+writeh("%s\n",code_lur);
+writeh("%s\n",code_common);
+
+if flag.debug then
+    writeh("if event.type == \'program\' then mem = {} end\n")
+    writeh("print(mem.at)\n")
+end
 
 code = {};
 apps = {};

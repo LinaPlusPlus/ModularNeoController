@@ -1,11 +1,10 @@
 --> code_common = section:tostring()
 
-if channel == mem.jd_channel and msg.position then
+if channel and channel == mem.jd_channel and msg.position then
     mem.jd_position = msg.position;
     mem.splash = "jumpdrive OK";
 end
 
---> 
 function at.lost()
     print("reached invalid place: "..tostring(mem.at));
     mem.splash = "lost at: "..tostring(mem.at);
@@ -60,7 +59,7 @@ function at.page_setup(state)
 
         mem.admins[msg.clicker] = true;
 
-        go "page_home";
+        go "home1";
         return
     end
 

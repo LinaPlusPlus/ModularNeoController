@@ -1,3 +1,3 @@
 #!/bin/sh
 
-lua fileglue.lua $@ src/* >out.lua
+lua fileglue.lua $@ core/* mods/* >out.lua
