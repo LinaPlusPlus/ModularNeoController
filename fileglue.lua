@@ -148,9 +148,7 @@ local env_mt = {};
 
 function env_mt:__index(k)
     local tryval;
-    if DO_TRACE then
-        log("trace",SYNTAX_THREAD(CURRENT_THREAD),"Global Get %q",k);
-    end
+
     --TODO add the awaiters to localzone, have the on resource found for globals scan all threads for `thread.blocker_global_key == key_being_assigned` rather than the big global awaitlist.
     --TODO: add the awaiting system to localzone
     --NOTE: the task of resuming a blocked thread by writing to global or localzone are going to be slightly diffrent
@@ -179,6 +177,9 @@ function env_mt:__index(k)
     end
 
     -- try to await our global to be written to
+    if DO_TRACE then
+        log("trace",SYNTAX_THREAD(CURRENT_THREAD),"Global Await %q",k);
+    end
 
     CURRENT_THREAD.blocker = ("Global %q"):format(k);
     CURRENT_THREAD.blocker_global_key = k;
@@ -195,7 +196,7 @@ function env_mt:__newindex(k,v)
     end
 
     if DO_TRACE then
-        log("trace",SYNTAX_THREAD(CURRENT_THREAD),"Global Set %s = %s",k,v);
+        log("trace",SYNTAX_THREAD(CURRENT_THREAD),"Global Set %s",k);
     end
 
     local lz = CURRENT_THREAD and CURRENT_THREAD.localzone;
