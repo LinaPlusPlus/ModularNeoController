@@ -14,7 +14,7 @@ local function gosub(place)
 end
 
 local function ret(place)
-    mem.at = remove(mem.uistk)
+    mem.at = remove(mem.uistk) or mem.at
     hup = false
 end
 
@@ -27,6 +27,7 @@ local function ready()
   fresh = mem.oldat ~= aat
   if fresh then
      mem.oldat = aat;
+     mem.state = {}
   end
   (at[aat or "setup"] or at.lost)(mem.state)
   
@@ -41,7 +42,7 @@ local function ready()
         element = "button",
         label = mem.splash,
         index = 1,
-        X=0.6, H=0.8, W=2.6, Y=6.8,
+        X=0.6, Y=7, W=5, H=1, 
     }
  end
 

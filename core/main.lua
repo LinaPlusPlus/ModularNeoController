@@ -18,7 +18,7 @@ writeh("%s\n",code_lur);
 writeh("%s\n",code_common);
 
 if flag.debug then
-    writeh("if event.type == \'program\' then mem = {} end\n")
+    writeh("if event.text == \'cls\' then mem = {} end\n")
     writeh("print(mem.at)\n")
 end
 

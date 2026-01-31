@@ -4,6 +4,11 @@ local _ui_updates = {};
 local _ui_changed = false;
 
 
+local _swidth, _sheight = 10, 8 --screen width and height
+local _BH = 0.8 -- _bh = button heightx``
+local _R12 = _sheight / 12
+local _C12 = _swidth / 12 -- 12 column grid width
+
 local function ui_clear()
     _ui_changed = true;
 
@@ -11,17 +16,18 @@ local function ui_clear()
 
     _ui_updates = {
         { command = "clear" },
+        {command = "set", width = _swidth, height = _sheight, no_prepend = true, real_coordinates = true},
         {
             label=mem.splash or "ERROR!",
             name="splash",
             command="addbutton",
-            X=0.6, H=0.8, W=2.6, Y=6.8,
+            X=0.6, Y=7, W=5, H=1, 
         },{
-            image="wool_red.png",
+            image="digistuff_adwaita_edit-undo.png",
             command="addimage_button",
             name="ev:back",
-            label="<><",
-            H=0.8, W=0.8, Y=6.8, X=0,
+            label="",
+            X=0, Y=7, W=1, H=1,
         },
     };
     mem.ui_len = 2;
@@ -43,13 +49,16 @@ local function ui(cmd)
     return index;
 end
 
-local function ui_button(name,label,X,H,W,Y)
-    ui{command="addbutton",name=name,label=label,X=X,H=H,W=W, Y=Y,}
+local function ui_button(name,label,X,Y,W,H)
+    ui{command="addbutton",name=name,label=label,X=X,Y=Y,H=H,W=W}
+end
+
+local function ui_image(name,label,image,X,Y,W,H)
+    ui{command="addimage_button",image=image,name=name,label=label,X=X,Y=Y,H=H,W=W}
 end
 
 -----
 
-local clicker_admin;
 local clicker_user;
 local uie = {}; -- ui event
 local msg_table = type(msg) == "table";
@@ -57,14 +66,16 @@ local msg_is_ui = msg_table and channel == mem.screen_channel;
 if msg_is_ui then
     local clicker = msg.clicker;
     if clicker then
-        clicker_admin = mem.admins[clicker];
-        clicker_user = clicker_admin or mem.users[clicker];
+        clicker_user = mem.users[clicker];
     end
 
     if clicker_user then 
         for name,data in pairs(msg) do 
+            if name == "splash" then name = "ev:back" end
+
             local slug = name:sub(1,3);
             local target = name:sub(4);
+
             if slug == "tx:" then 
                 mem.state[target] = data;
             elseif slug == "ev:" then
@@ -73,8 +84,13 @@ if msg_is_ui then
                 gosub(target);
             elseif slug == "go:" then
                 go(target)
+            elseif slug == "tl:" then 
+                --text lists that use 'CHG:<number>'
+                uie[target] = tonumber(data:sub(5))
             end
         end
+    else
+         mem.splash = ("permission denied, %s"):format(msg.clicker)
     end
 
 end

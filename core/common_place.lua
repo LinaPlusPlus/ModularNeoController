@@ -5,6 +5,7 @@ if channel and channel == mem.jd_channel and msg.position then
     mem.splash = "jumpdrive OK";
 end
 
+--> sect("common_code")
 function at.lost()
     print("reached invalid place: "..tostring(mem.at));
     mem.splash = "lost at: "..tostring(mem.at);
@@ -21,7 +22,6 @@ function at.setup()
         jd_radius = 1,
         jd_step = 11,
 
-        admins = {},
         users = {},
 
         uistk = {}, -- a stack of pages, can be clobbered 
@@ -37,40 +37,45 @@ function at.setup()
     dls(mem.jd_channel, {command = "get"});
     mem.splash = "locating your jumpdrive...";
 
-    go "page_setup";
+    go "_setup";
 end
 --END
 
-function at.page_setup(state)
-
-    if mem.unwinding then
-        mem.splash = "Nothing to do.";
-        mem.unwinding = false;
+function at._setup()
+    if event.channel == mem.jd_channel then
+        mem.splash = "jumpdrive OK.";
+        if msg.position then
+            local p = msg.position;
+            mem.target = {x=p.x,y=p.y,z=p.z} --TODO, move this from {x=,y=,z=} to {X,Y,Z} format
+        else
+            mem.target = {x=-500,y=-500,z=100} -- senable default
+        end
+        go "page_setup";
     end
+end
 
-    if state.locked and event.type == "program" then
+function at.page_setup(state)
+    if event.type == "program" then
         go "setup"
         return
     end
 
-    if msg and msg.done then
-        if state.locked then return end;
-        mem.splash = ("hello %s :)"):format(msg.clicker);
-
-        mem.admins[msg.clicker] = true;
-
+    if msg_is_ui and msg.done then
+        if state.locked then return end
+        mem.users[msg.clicker] = "admin";
+        state.text = nil; -- cleanup variable after use
         go "home1";
         return
     end
 
-    if msg and msg.legal then
+    if msg_is_ui and msg.legal then
         state.text = LEGAL;
         state.label = "Legal";
-        state.drawn = false;
+        fresh = true;
     end
 
-    if msg and msg.notmyship then
-        state.drawn = false;
+    if msg_is_ui and msg.notmyship then
+        fresh = true;
         mem.interrupt = false;
         state.locked = true;
         mem.splash = "ship is disabled!";
@@ -83,8 +88,7 @@ function at.page_setup(state)
         ]]):format(msg.clicker);
     end
 
-    if not state.drawn then
-    state.drawn = true
+    if fresh then
 
     ui_clear(false);
 
@@ -96,12 +100,32 @@ function at.page_setup(state)
         X=0.8, Y=0.8, W=9, H=4.6,
     }
 
-    ui_button("done",state.locked and "{ Locked }" or "Lets Get Started!",3.6, 9.8, 2.8, 0.8)
-    ui_button("notmyship","Not my ship",1.2,9.8,1.6,0.8)
-    ui_button("legal","Lisense",7.2, 9.8,1.6, 0.8)
+    ui_button("done",state.locked and "{ Locked }" or "Lets Get Started!",3.6, 5.5, 2.8, 0.8)
+    ui_button("notmyship","Not my ship",1.2,5.5,1.6,0.8)
+    ui_button("legal","Lisense",7.2, 5.5,1.6, 0.8)
     end
 
 
     --go "noop"
 end
 
+function parse4(line)
+    local j, h = 1
+
+    h = line:find(",", j, true)
+    local v1 = line:sub(j, (h or 0) - 1)
+    if not h then return v1 end
+
+    j = h + 1
+    h = line:find(",", j, true)
+    local v2 = line:sub(j, (h or 0) - 1)
+    if not h then return v1, v2 end
+
+    j = h + 1
+    h = line:find(",", j, true)
+    local v3 = line:sub(j, (h or 0) - 1)
+    if not h then return v1, v2, v3 end
+
+    local v4 = line:sub(h + 1)
+    return v1, v2, v3, v4
+end
