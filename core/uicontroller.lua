@@ -70,12 +70,12 @@ if msg_is_ui then
     end
 
     if clicker_user == nil then
-        mem.users[clicker] = false;
-        clicker_user = false;
+        clicker_user = {};
+        mem.users[clicker] = clicker_user;
         mem.splash = ("welcome aboard, %s"):format(clicker)
     end
 
-    if clicker_user or (mem.allow_guests and clicker_user == false) then
+    if clicker_user.interact or mem.allow_guests then
         for name,data in pairs(msg) do 
             if name == "splash" then name = "ev:back" end
 

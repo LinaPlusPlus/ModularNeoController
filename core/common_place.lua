@@ -16,6 +16,7 @@ function at.setup()
         log = {},
         screen_channel = "touch",
         jd_channel = "jumpdrive", -- help: enter fleet controller or jumpdrive digiline channel
+        nic_channel = "nic",
 
         active_page = 1, --old?
 
@@ -62,8 +63,7 @@ function at.page_setup(state)
 
     if msg_is_ui and msg.done then
         if state.locked then return end
-        mem.users[msg.clicker] = "admin";
-        state.text = nil; -- cleanup variable after use
+        mem.users[msg.clicker] = {interact=true,admin=true};
         go "home1";
         return
     end
@@ -109,7 +109,7 @@ function at.page_setup(state)
     --go "noop"
 end
 
-function parse4(line)
+function parse5(line)
     local j, h = 1
 
     h = line:find(",", j, true)
@@ -126,6 +126,11 @@ function parse4(line)
     local v3 = line:sub(j, (h or 0) - 1)
     if not h then return v1, v2, v3 end
 
-    local v4 = line:sub(h + 1)
-    return v1, v2, v3, v4
+    j = h + 1
+    h = line:find(":", j, true)
+    local v4 = line:sub(j, (h or 0) - 1)
+    if not h then return v1, v2, v3, v4 end
+
+    local v5 = line:sub(h + 1)
+    return v1, v2, v3, v4, v5
 end

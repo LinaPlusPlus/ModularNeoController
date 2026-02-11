@@ -12,8 +12,8 @@ function at.admin(state)
 
     if fresh then
         local babel = {};
-        for k,v in pairs(mem.users) do
-            table.insert(babel,("%s: %s"):format(k,v));
+        for k,vt in pairs(mem.users) do
+            table.insert(babel,("%s: %s %s"):format(k,vt.interact and "" or "guest",vt.admin and "admin" or ""));
         end
 
         ui_clear()
